@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "608916112932",
+    "project_id": "recipe-view-management-system",
+    "storage_bucket": "recipe-view-management-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:608916112932:android:447f6506873812b640fab1",
+        "android_client_info": {
+          "package_name": "com.awesomeproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH8GF_Se8h783NXAoDjD-LwEe57Y6Hwgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
