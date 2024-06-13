@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, KeyboardAvoidingView, TextInput, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import SignUpLogo from '../../images/signUpLogo.png';
+import SignUpLogo from '../../images/signUpLogo2.png';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import Tooltip from 'react-native-walkthrough-tooltip';
+import firestore from '@react-native-firebase/firestore';
 // import errorlogo from '../../images/error-removebg-preview.png';
+import Ionicon from 'react-native-vector-icons/MaterialIcons';
 
 
 export default function SignUp() {
@@ -18,41 +20,56 @@ export default function SignUp() {
 
   const navigation = useNavigation();
 
-  const handleSignup= async () => {
+  const handleSignup = async () => {
     try {
-      if (email.length > 0 && password.length > 0) {
+      if (email.length > 0 && password.length > 0 && name.length > 0) {
         const userCredential = await auth().createUserWithEmailAndPassword(email, password);
-        // const { uid } = userCredential.user;
-
-        // await database().ref(`/users/${uid}`).set({
-        //   name: name,
-        //   email: email,
-        // });
-
-        // console.log(userCredential);
+     
         setIsSuccess(true);
         Alert.alert('Success', 'You have registered successfully!');
         setName('');
         setEmail('');
         setPassword('');
         setMessage('');
-        navigation.navigate('Login')
+       
+        const userData = {
+          id: userCredential.user.uid,
+          name: name,
+          email: email,
+        };
+
+        await firestore()
+          .collection('users')
+          .doc(userCredential.user.uid)
+          .set(userData);
+          //___________________________________________________
+          await auth().currentUser.sendEmailVerification();
+          await auth().signOut();
+          alert('User verification has been sent to you.');
+          navigation.navigate('Login');
+          //________________________________________________
       }
+
+      
       else {
         setTip(true);
       }
     } catch (err) {
-      // console.log(err);
+      
       setIsSuccess(false);
       setMessage(err.message);
     }
   };
   //authentication code 
   return (
-    <View>
+    <View style={styles.frame}>
       <ScrollView>
-        <TouchableOpacity style={styles.Gobackbutton} onPress={() => navigation.goBack()}>
-          <Text style={styles.goBtnText}>Go Back</Text></TouchableOpacity>
+        <View style={styles.Gobackbutton}>
+        <TouchableOpacity  onPress={() => navigation.goBack()}>
+        <Ionicon name="arrow-circle-left" size={60} color="#C19A6B"/>
+          {/* <Text style={styles.goBtnText}>Go Back</Text> */}
+          </TouchableOpacity>
+          </View>
         <View style={styles.imageContainer} >
           <Image source={SignUpLogo} style={styles.image} />
         </View>
@@ -61,44 +78,54 @@ export default function SignUp() {
 
         </View>
         <KeyboardAvoidingView style={styles.inputGroup}>
-          <View style={styles.container}>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              placeholderTextColor="gray"
-              value={name}
-              onChangeText={value => setName(value)}
-            />
-          </View>
 
           <View style={styles.container}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="gray"
-              value={email}
-              onChangeText={value => setEmail(value)}
-            />
+            <View style={styles.inputContainer}>
+              <Ionicon name="person" size={20} color="gray" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Name "
+                placeholderTextColor="gray"
+                value={name}
+                onChangeText={value => setName(value)}
+              />
+            </View>
           </View>
           <View style={styles.container}>
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="gray"
-              value={password}
-              onChangeText={value => setPassword(value)}
-              secureTextEntry
-            />
+            <View style={styles.inputContainer}>
+              <Ionicon name="alternate-email" size={20} color="gray" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="gray"
+                value={email}
+                onChangeText={value => setEmail(value)}
+              />
+            </View>
+          </View>
+          <View style={styles.container}>
+            <View style={styles.inputContainer}>
+              <Ionicon name="lock-outline" size={20} color="gray" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="gray"
+                value={password}
+                onChangeText={value => setPassword(value)}
+                secureTextEntry
+              />
+            </View>
           </View>
         </KeyboardAvoidingView>
         <TouchableOpacity activeOpacity={0.5} style={styles.btnContainer} onPress={() => handleSignup()} >
-          <Text style={styles.signUp}>SignUp</Text>
+          <Text style={styles.signUp}>Register Now</Text>
         </TouchableOpacity>
 
-        <Tooltip 
+        <Tooltip
           isVisible={showTip}
           content={
             <View style={styles.tooltipContent}>
+              {/* <Ionicon name="warning" size={20} color="gray" style={styles.icon} /> */}
               <Text style={styles.tooltipText}>All fields are required</Text>
             </View>
           }
@@ -117,28 +144,22 @@ export default function SignUp() {
   )
 }
 const styles = StyleSheet.create({
-  Gobackbutton: {
-    width: 100,
-    height: 40,
-    backgroundColor: "#FFC76C",
-    top: 20,
-    left: 20,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: "black"
-  },
-  goBtnText: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 20
+  frame:{
+    backgroundColor:"#F5F5DC",
+    flex:1,
+
+
   },
 
+  Gobackbutton: {
+    padding:10 
+  },
+
+
   imageContainer: {
-    paddingTop: 60,
+   // paddingTop: 30,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
 
   },
   image: {
@@ -148,46 +169,62 @@ const styles = StyleSheet.create({
   },
   registerLabel: {
 
-    fontSize: 30,
+    fontSize: 35,
     alignSelf: "center",
     fontWeight: 'bold',
     padding: 30,
-    color: "black"
-
+    color: "#5C4033",
+   fontFamily:"georgia"
   },
-  mainContainer: {
-    alignItems: "center"
+
+  inputGroup: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 10,
+
   },
   container: {
-    // backgroundColor: "tomato",
     width: "80%",
     padding: 7,
-    width: 370,
-
-    alignSelf: "center"
+   // backgroundColor:"red"
   },
-  input: {
-    padding: 15,
+  inputContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "white",
+    padding: 6,
     borderWidth: 1,
     borderColor: 'black',
-    marginBottom: 5,
-    fontSize: 18,
-    borderRadius: 20,
-    color: "black",
+    marginBottom: 2,
+    borderRadius: 30,
+    justifyContent: "space-between"
 
+  },
+  icon: {
+    position: 'absolute',
+    left: 15,
+    top: 20
+  },
+  input: {
+    flex: 1,
+    fontSize: 18,
+    color: "black",
+    paddingLeft: 40,
   },
   btnContainer: {
     borderRadius: 20,
-    backgroundColor: "#FFC76C",
+    backgroundColor: "#C19A6B",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 15,
+    marginTop: 40,
     borderColor: 'black',
     borderWidth: 1,
     height: 50,
     width: 200,
     alignSelf: "center",
-
+   
   },
   signUp: {
     fontSize: 20,
@@ -223,19 +260,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
- 
-   
+
+
   },
   tooltipText: {
-   
+
     color: 'black',
     fontSize: 16,
-   
+
     //backgroundColor:"red"
   },
 
 
- 
+
 
 
 })

@@ -2,12 +2,13 @@ import React from "react";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from "@react-navigation/native";
 import WelcomeHomePg from "../pages/WelcomeHomePg";
-
-
 import LoginPg from "../pages/LoginPg";
 import SignUp from "../pages/SignUp";
 import ForgotPassword from "../pages/ForgotPassword";
 import RecipeList from "../pages/RecipeList";
+import EmailSent from "../pages/EmailSent";
+import dummy from "../pages/dummy";
+
 // const { Navigator, Screen } = createNativeStackNavigator();
 const NavigatorScreen = () => {
 
@@ -21,6 +22,8 @@ const NavigatorScreen = () => {
               
                 <Stack.Screen  options={{header:()=>null}}  name="SignUpPg" component={SignUp} />
                 <Stack.Screen  options={{header:()=>null}}  name="ForgotPasswordPg" component={ForgotPassword} />
+                <Stack.Screen  options={{header:()=>null}}  name="emailSentPg" component={EmailSent} />
+                <Stack.Screen  options={{header:()=>null}}  name="Dummy" component={dummy} />
             </Stack.Navigator>
         </NavigationContainer>
 
